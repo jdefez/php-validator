@@ -15,8 +15,9 @@ $candidate = new Candidate('green');
 //  var_dump($validator->errors());
 // }
 
-$validator = (new Validator($candidate, Validator::CHECK_ALL_RULE))->setRules([
-    ColorRule::class
-]);
+$validator = (new Validator($candidate, Validator::CHECK_ALL_RULE))
+    ->setRules([
+        ColorRule::class
+    ]);
 
 var_dump($validator->isValid(), $validator->errors());
