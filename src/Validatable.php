@@ -4,9 +4,11 @@ namespace Jdefez\PhpValidator;
 
 interface Validatable
 {
-    public function setRules(array $rules): Validatable;
+    public static function setCandidate(Candidate $candidate): Validatable;
 
-    public function isValid(): bool;
+    public function setStrategy(int $strategy): Validatable;
 
-    public function errors(): array;
+    public function setRules(string ...$rules): Validatable;
+
+    public function validates(): bool;
 }

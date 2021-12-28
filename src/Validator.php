@@ -2,58 +2,85 @@
 
 namespace Jdefez\PhpValidator;
 
+use Exception;
+
 class Validator implements Validatable
 {
     public const BREAK_ON_FIRST_ERROR = 0;
-
     public const CHECK_ALL_RULE = 1;
 
-    private array $errors = [];
+    public int $strategy = 0;
+
+    public array $errors = [];
 
     private array $rules;
 
-    public function __construct(
-        public Candidate $canditate,
-        public int $strategy = self::BREAK_ON_FIRST_ERROR
-    ) {
+    final public function __construct(public Candidate $canditate)
+    {
     }
 
-    public function setRules(array $rules): Validator
+    public static function setCandidate(Candidate $candidate): Validator
+    {
+        return new static($candidate);
+    }
+
+    public function setRules(string ...$rules): Validator
     {
         $this->rules = $rules;
-
-        $this->validate();
 
         return $this;
     }
 
-    public function __invoke(array $rules): Validator
+    public function setStrategy(int $strategy): Validator
     {
-        return $this->setRules($rules);
+        $this->strategy = $strategy;
+
+        return $this;
     }
 
     protected function validate(): void
     {
         foreach ($this->rules as $rule) {
-            $validated = $rule::isSatisfiedBy($this->canditate);
+            $this->apply($rule);
 
-            if (! $validated) {
-                $this->errors[] = $rule::getMessage($this->canditate);
-
-                if ($this->strategy === self::BREAK_ON_FIRST_ERROR) {
-                    break;
-                }
+            if ($this->shouldBreakOnFirstError()) {
+                break;
             }
         }
     }
 
-    public function isValid(): bool
+    public function validates(): bool
     {
+        $this->validate();
+
         return empty($this->errors);
     }
 
-    public function errors(): array
+    protected function shouldBreakOnFirstError()
     {
-        return $this->errors;
+        return $this->strategy === self::BREAK_ON_FIRST_ERROR
+            && !empty($this->errors);
+    }
+
+    /** @throws Exception */
+    protected function apply(string $rule)
+    {
+        $this->isRuleable($rule);
+
+        $validated = $rule::isSatisfiedBy($this->canditate);
+
+        if (!$validated) {
+            $this->errors[] = $rule::getMessage($this->canditate);
+        }
+    }
+
+    /** @throws Exception */
+    protected function isRuleable(string $rule): void
+    {
+        $implementations = @class_implements($rule) ?: [];
+
+        if (!in_array(Ruleable::class, $implementations)) {
+            throw new Exception(sprintf('Invalid Rule given: %s', $rule));
+        }
     }
 }

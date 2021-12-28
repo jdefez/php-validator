@@ -9,11 +9,11 @@ class ColorRule implements Ruleable
 {
     public static function isSatisfiedBy(Candidate $candidate): bool
     {
-        return in_array($candidate->color, ['red', 'pink']);
+        return in_array($candidate->color, ['redish', 'pinkish']);
     }
 
     public static function getMessage(Candidate $Candidate): string
     {
-        return sprintf('Color "%s" is neither pink or red', $Candidate->color);
+        return sprintf('Color "%s" is neither pinkish or redish', $Candidate->color);
     }
 }
