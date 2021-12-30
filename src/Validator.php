@@ -24,16 +24,9 @@ class Validator implements Validatable
         return new static($candidate);
     }
 
-    public function setRules(string ...$rules): Validator
+    public function setRules(Ruleable|string ...$rules): Validator
     {
         $this->rules = $rules;
-
-        return $this;
-    }
-
-    public function setStrategy(int $strategy): Validator
-    {
-        $this->strategy = $strategy;
 
         return $this;
     }
@@ -41,6 +34,7 @@ class Validator implements Validatable
     protected function validate(): void
     {
         foreach ($this->rules as $rule) {
+            $this->isRuleable($rule);
             $this->apply($rule);
 
             if ($this->shouldBreakOnFirstError()) {
@@ -49,8 +43,12 @@ class Validator implements Validatable
         }
     }
 
-    public function validates(): bool
+    public function validates(?int $strategy = self::BREAK_ON_FIRST_ERROR): bool
     {
+        if ($strategy) {
+            $this->strategy = $strategy;
+        }
+
         $this->validate();
 
         return empty($this->errors);
@@ -63,10 +61,8 @@ class Validator implements Validatable
     }
 
     /** @throws Exception */
-    protected function apply(string $rule)
+    protected function apply(Ruleable|string $rule)
     {
-        $this->isRuleable($rule);
-
         $validated = $rule::isSatisfiedBy($this->canditate);
 
         if (!$validated) {
@@ -75,12 +71,18 @@ class Validator implements Validatable
     }
 
     /** @throws Exception */
-    protected function isRuleable(string $rule): void
+    protected function isRuleable(Ruleable|string $rule): void
     {
-        $implementations = @class_implements($rule) ?: [];
-
-        if (!in_array(Ruleable::class, $implementations)) {
-            throw new Exception(sprintf('Invalid Rule given: %s', $rule));
+        if (!in_array(Ruleable::class, $this->getImplementations($rule))) {
+            throw new Exception(sprintf(
+                'Rule %s is invalid. It must implement Realable interface.',
+                $rule
+            ));
         }
+    }
+
+    protected function getImplementations(string|Ruleable $rule): array
+    {
+        return @class_implements($rule) ?: [];
     }
 }

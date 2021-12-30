@@ -2,8 +2,12 @@
     "name": "jdefez/php-validtor",
     "autoload": {
         "psr-4": {
-            "Jdefez\\PhpValidator\\": "src/",
-            "Jdefez\\Examples\\": "examples/"
+            "Jdefez\\PhpValidator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jdefez\\tests\\": "tests/"
         }
     },
     "require-dev": {

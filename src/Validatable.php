@@ -6,9 +6,7 @@ interface Validatable
 {
     public static function setCandidate(Candidate $candidate): Validatable;
 
-    public function setStrategy(int $strategy): Validatable;
-
-    public function setRules(string ...$rules): Validatable;
+    public function setRules(Ruleable|string ...$rules): Validatable;
 
     public function validates(): bool;
 }
