@@ -31,10 +31,12 @@ class Validator implements Validatable
         return $this;
     }
 
+    /** @throws Exception */
     protected function validate(): void
     {
         foreach ($this->rules as $rule) {
             $this->isRuleable($rule);
+
             $this->apply($rule);
 
             if ($this->shouldBreakOnFirstError()) {
@@ -43,6 +45,7 @@ class Validator implements Validatable
         }
     }
 
+    /** @throws Exception */
     public function validates(?int $strategy = self::BREAK_ON_FIRST_ERROR): bool
     {
         if ($strategy) {
@@ -60,7 +63,6 @@ class Validator implements Validatable
             && !empty($this->errors);
     }
 
-    /** @throws Exception */
     protected function apply(Ruleable|string $rule)
     {
         $validated = $rule::isSatisfiedBy($this->canditate);
