@@ -1,6 +1,6 @@
 <?php
 
-namespace Jdefez\tests;
+namespace Jdefez\tests\Unit;
 
 use Exception;
 use Jdefez\PhpValidator\Candidate;
